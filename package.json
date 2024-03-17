@@ -1,0 +1,37 @@
+{
+  "name": "sedrah",
+  "version": "1.0.0",
+  "description": "This is the data Sedrah app by sedrah team",
+  "main": "sed.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "Sed"
+  },
+  "keywords": [
+    "sedrah",
+    "data",
+    "example",
+    "user",
+    "plant",
+    "soil",
+    "analysis",
+    "crop",
+    "yield",
+    "prediction",
+    "plant",
+    "diagnosis",
+    "plant",
+    "types",
+    "image",
+    "result"
+  ],
+  "author": "Sedrah Team",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.3",
+    "mysql2": "^3.9.2"
+  }
+}
