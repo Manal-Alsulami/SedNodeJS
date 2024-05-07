@@ -5,10 +5,10 @@ const sequelize = require("./db/connection"); // Import Sequelize instance
 const app = express();
 app.use(express.json());
 
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 3000;
 
 // Require API route files
-const signupAPI = require('./APIs/signup');
+const signupAPI = require('./APIs/signup'); // Corrected line
 const loginAPI = require('./APIs/login');
 const otpsAPI = require('./APIs/otpsAPI');
 const profileAPI = require('./APIs/profile'); // Corrected line
@@ -19,7 +19,7 @@ const selectedPlantTypeAPI = require('./APIs/selectedplanttype');
 const planttypeimageAPI = require('./APIs/planttypeimage'); // Import the planttypeimage router
 // const planttypeimageAPI = require('./APIs/planttypeimage')(sequelize)
 // Use API route files
-app.use('/APIs/signup', signupAPI);
+app.use('/APIs/signup', signupAPI); // Corrected line
 app.use('/APIs/login', loginAPI);
 app.use('/APIs/otpsAPI', otpsAPI);
 app.use('/APIs/profile', profileAPI);

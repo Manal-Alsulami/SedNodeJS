@@ -11,8 +11,9 @@ const User = sequelize.define('User', {
   name: Sequelize.STRING(30),
   email: Sequelize.STRING(40),
   password: Sequelize.STRING(20),
-  phone: Sequelize.STRING(15),
-  location: Sequelize.STRING(255)
+  phone: Sequelize.STRING(15)
+}, {
+  tableName: 'user' // Specify the table name explicitly
 });
 
 module.exports = User;
