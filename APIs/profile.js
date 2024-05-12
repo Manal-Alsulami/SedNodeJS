@@ -1,3 +1,5 @@
+
+
 const express = require('express');
 const route = express.Router();
 const User = require('../model/User'); // Import the User model
@@ -5,7 +7,7 @@ const User = require('../model/User'); // Import the User model
 // Route to get user profile
 route.get('/', async (req, res) => {
     try {
-        const userId = req.query.user_ID; // Get user ID from query parameter
+        const userId = req.query.user_ID; // Corrected query parameter name
         console.log(userId);
         // Check if userId is not provided
         if (!userId) {

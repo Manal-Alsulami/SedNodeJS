@@ -1,5 +1,12 @@
+
 const express = require('express');
 const sequelize = require("./db/connection"); // Import Sequelize instance
+const passport = require('./config/passport'); // Import Passport middleware
+const jwtStrategy = require('passport-jwt').Strategy;
+const extractJwt = require('passport-jwt').ExtractJwt;
+const crypto = require('crypto');
+require('dotenv').config();
+
 
 // Create Express app
 const app = express();
@@ -42,3 +49,6 @@ app.get('/status', (request, response) => {
 
     response.send(status);
 });
+
+
+

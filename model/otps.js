@@ -1,9 +1,10 @@
 // Define OTPs model
 
 // Import Sequelize
+
 const Sequelize = require('sequelize');
 const sequelize = require('../db/connection');
-const User = require('./user'); // Import the User model
+const User = require('./User'); // Import the User model
 
 
 // Define User model
@@ -17,6 +18,10 @@ const OTPs = sequelize.define('OTPs', {
     OTP_value: Sequelize.INTEGER,
     is_used: Sequelize.BOOLEAN,
     Expiry_timestamp: Sequelize.DATE
+}, {
+    tableName: 'OTPs', // Specify the table name explicitly
+    timestamps: false // Set timestamps to false if you don't want Sequelize to manage createdAt and updatedAt columns
+
 });
 
 OTPs.belongsTo(User, { foreignKey: 'user_ID' });

@@ -1,6 +1,58 @@
 
 const express = require('express');
 const route = express.Router();
+const User = require('../model/User');
+
+//const otpAPI = require('./otpsAPI'); // Import the otpAPI module
+
+// Extract user data from the request body
+function extractUserData(request) {
+    const { name, email, password, phone } = request.body;
+    return { name, email, password, phone };
+}
+// Check if all required fields are provided
+function checkRequiredFields(userData) {
+    const { name, email, password, phone } = userData;
+    return !(!name || !email || !password || !phone);
+}
+
+// Check if the email is already registered
+async function checkEmailAvailability(email) {
+    const existingUser = await User.findOne({ where: { email } });
+    return !existingUser;
+}
+
+
+// Route to handle user signup
+route.post('/', async (request, response) => {
+    try {
+        // Extract user data from request body
+        const userData = extractUserData(request);
+
+        // Validate required fields
+        if (!checkRequiredFields(userData)) {
+            return response.status(400).json({ message: 'Please provide all required fields: name, email, password, phone' });
+        }
+
+        // Check if email is already registered
+        if (!await checkEmailAvailability(userData.email)) {
+            return response.status(400).json({ message: 'Email is already registered' });
+        }
+
+        // Success message after sending OTP
+        return response.status(201).json({ message: 'User signed up successfully' });
+    } catch (error) {
+        console.error('Error signing up:', error);
+        return response.status(500).json({ message: 'Error signing up' });
+    }
+});
+
+module.exports = route;
+
+
+/**
+const express = require('express');
+const route = express.Router();
 //const { User } = require('../model/User');
 const User = require('../model/User'); // Correct the import statement
 
@@ -25,6 +77,8 @@ async function checkEmailAvailability(email) {
     return !existingUser;
 }
 
+
+
 //post: to create data
 route.post('/', async (request, response) => {
     try {
@@ -42,8 +96,8 @@ route.post('/', async (request, response) => {
         if (!await checkEmailAvailability(userData.email)) {
             return response.status(400).json({ message: 'Email is already registered' });
         }
+       
 
-        // Send OTP to the user (implementation depends on your communication channel)
 
         return response.status(201).json({ message: 'User signed up successfully. Please verify your email address.' });
     } catch (error) {
@@ -51,4 +105,5 @@ route.post('/', async (request, response) => {
         return response.status(500).json({ message: 'Error signing up' });
     }
 });
-module.exports = route;
+module.exports = route; 
+*/

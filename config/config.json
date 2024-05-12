@@ -1,0 +1,23 @@
+{
+    "development": {
+        "username": "root",
+        "password": "Manal4Manal",
+        "database": "Sedrah",
+        "host": "localhost",
+        "dialect": "mysql"
+    },
+    "test": {
+        "username": "root",
+        "password": "Manal4Manal",
+        "database": "Sedrah",
+        "host": "localhost",
+        "dialect": "mysql"
+    },
+    "production": {
+        "username": "root",
+        "password": "Manal4Manal",
+        "database": "Sedrah",
+        "host": "localhost",
+        "dialect": "mysql"
+    }
+}
