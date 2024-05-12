@@ -1,8 +1,9 @@
 
 const express = require('express');
+const jwt = require('jsonwebtoken');
+const passport = require('passport');
 const route = express.Router();
-const { User } = require('../model/user');
-const bcrypt = require('bcrypt'); // Import bcrypt for password hashing and comparison
+const User = require('../model/User');
 
 // Extract user data from the request body
 function extractUserData(req) {
@@ -17,22 +18,22 @@ function checkRequiredFields(userData) {
 
 async function loginPerform(userData) {
     const { email, password } = userData;
-    // retrive user from db by email
+    // Retrieve user from the database by email
     const user = await User.findOne({ where: { email } });
-    //check if user exists!!
+    // Check if user exists
     if (!user) {
         throw new Error('User not found');
     }
-    // compar hashed pass with provided pass
-    const passMatch = await bcrypt.compare(password, user.password);
-    // if marchs 
-    if (passMatch) {
+
+    // Compare password directly (without hashing)
+    if (password === user.password) {
         return { success: true, user };
     } else {
         throw new Error('Incorrect password');
     }
 }
 //post: to create data
+
 
 route.post('/', async (req, res) => {
     try {
@@ -43,11 +44,15 @@ route.post('/', async (req, res) => {
         if (!checkRequiredFields(userData)) {
             return res.status(400).json({ message: 'Please provide all required fields: email and password!' });
         }
+
         // Perform login 
         const loginResult = await loginPerform(userData);
 
+        // Create a JWT token
+        const token = jwt.sign({ userId: loginResult.user.id }, '341cef0cb02793c112cdd9a6d4680c9dae71fcf8265c3e2c4c2232d0a346331b', { expiresIn: '1h' });
+
         // If login is successful return success msg and user data
-        return res.status(200).json({ message: 'Login successful', user: loginResult.user });
+        return res.status(200).json({ message: 'Login successful', user: loginResult.user, token });
 
     } catch (error) {
         // If an error occurs during login (e.g., user not found or incorrect password), handle it
@@ -56,3 +61,4 @@ route.post('/', async (req, res) => {
 });
 
 module.exports = route;
+

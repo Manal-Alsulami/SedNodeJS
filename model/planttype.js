@@ -1,3 +1,4 @@
+
 const Sequelize = require('sequelize');
 
 const sequelize = require('../db/connection');
@@ -13,8 +14,13 @@ const PlantType = sequelize.define('PlantType', {
     selected_Plant_Type: Sequelize.STRING(30),
     plant_Type_Image: Sequelize.BLOB,
     plant_types: Sequelize.STRING(30)
+}, {
+    tableName: 'PlantType'  // Specify the table name explicitly
 });
 
+
+
+module.exports = PlantType;
 
 // Sync the PlantType with the database
 /** sequelize.sync()
@@ -25,6 +31,3 @@ const PlantType = sequelize.define('PlantType', {
         console.error('Error synchronizing PlantType:', error);
     });
 */
-
-module.exports = PlantType;
-

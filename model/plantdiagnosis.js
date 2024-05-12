@@ -1,6 +1,7 @@
+
 const Sequelize = require('sequelize');
 const sequelize = require('../db/connection');
-const User = require('./user'); // Import the User model
+const User = require('./User'); // Import the User model
 const PlantType = require('./planttype'); // Import the PlantType model
 // Define PlantDiagnosis model
 const PlantDiagnosis = sequelize.define('PlantDiagnosis', {
@@ -14,8 +15,9 @@ const PlantDiagnosis = sequelize.define('PlantDiagnosis', {
     selected_Plant_Type: Sequelize.STRING(30),
     Image: Sequelize.BLOB,
     PlantResult: Sequelize.TEXT
+}, {
+    tableName: 'PlantDiagnosis'// Specify the table name explicitly
 });
-
 PlantDiagnosis.belongsTo(User, { foreignKey: 'user_ID' });
 PlantDiagnosis.belongsTo(PlantType, { foreignKey: 'PlantType_ID' });
 // Sync the PlantDiagnosis with the database
