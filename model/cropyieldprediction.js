@@ -21,11 +21,8 @@ const CropYieldPrediction = sequelize.define('CropYieldPrediction', {
     selected_Plant_Type: Sequelize.STRING(30),
     Temp: Sequelize.FLOAT,
     Humidity: Sequelize.FLOAT,
-    Rainfall: Sequelize.FLOAT,
-    pH: Sequelize.FLOAT,
-    N: Sequelize.FLOAT,
-    P: Sequelize.FLOAT,
-    K: Sequelize.FLOAT,
+    AmountOfPesticideUse: Sequelize.INTEGER,
+    ContryEncoded: Sequelize.VARCHAR(30),
     PlantResult: Sequelize.TEXT,
     PredictionResult: Sequelize.TEXT
 }, {
