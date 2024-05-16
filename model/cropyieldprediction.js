@@ -15,7 +15,6 @@ const CropYieldPrediction = sequelize.define('CropYieldPrediction', {
         primaryKey: true,
         autoIncrement: true
     },
-    PlantDiagnosis_ID: Sequelize.INTEGER,
     user_ID: Sequelize.INTEGER,
     PlantType_ID: Sequelize.INTEGER,
     selected_Plant_Type: Sequelize.STRING(30),
@@ -23,7 +22,6 @@ const CropYieldPrediction = sequelize.define('CropYieldPrediction', {
     Humidity: Sequelize.FLOAT,
     AmountOfPesticideUse: Sequelize.INTEGER,
     ContryEncoded: Sequelize.VARCHAR(30),
-    PlantResult: Sequelize.TEXT,
     PredictionResult: Sequelize.TEXT
 }, {
     tableName: 'CropYieldPrediction' // Specify the table name explicitly
@@ -32,7 +30,6 @@ const CropYieldPrediction = sequelize.define('CropYieldPrediction', {
 
 CropYieldPrediction.belongsTo(User, { foreignKey: 'user_ID' });
 CropYieldPrediction.belongsTo(PlantType, { foreignKey: 'PlantType_ID' });
-CropYieldPrediction.belongsTo(PlantDiagnosis, { foreignKey: 'PlantDiagnosis_ID' });
 
 
 

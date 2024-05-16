@@ -16,20 +16,10 @@ const PlantDiagnosis = sequelize.define('PlantDiagnosis', {
     Image: Sequelize.BLOB,
     PlantResult: Sequelize.TEXT
 }, {
-    tableName: 'PlantDiagnosis'// Specify the table name explicitly
+    tableName: 'PlantDiagnosis' //table name
 });
 PlantDiagnosis.belongsTo(User, { foreignKey: 'user_ID' });
 PlantDiagnosis.belongsTo(PlantType, { foreignKey: 'PlantType_ID' });
-// Sync the PlantDiagnosis with the database
-/** sequelize.sync()
-    .then(() => {
-        console.log('PlantDiagnosis synchronized with the database');
-    })
-    .catch((error) => {
-        console.error('Error synchronizing PlantDiagnosiser:', error);
-    });*/
 
 
 module.exports = PlantDiagnosis;
-
-
