@@ -1,23 +1,23 @@
 {
     "development": {
-        "username": "root",
+        "username": "u652187899_Sedrah",
         "password": "Manal4Manal",
-        "database": "Sedrah",
-        "host": "localhost",
+        "database": "u652187899_Sedrah",
+        "host": "srv1457.hstgr.io",
         "dialect": "mysql"
     },
     "test": {
-        "username": "root",
+        "username": "u652187899_Sedrah",
         "password": "Manal4Manal",
-        "database": "Sedrah",
-        "host": "localhost",
+        "database": "u652187899_Sedrah",
+        "host": "srv1457.hstgr.io",
         "dialect": "mysql"
     },
     "production": {
-        "username": "root",
+        "username": "u652187899_Sedrah",
         "password": "Manal4Manal",
-        "database": "Sedrah",
-        "host": "localhost",
+        "database": "u652187899_Sedrah",
+        "host": "srv1457.hstgr.io",
         "dialect": "mysql"
     }
 }
