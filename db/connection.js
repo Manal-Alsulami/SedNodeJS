@@ -5,8 +5,8 @@ const Sequelize = require('sequelize');
 
 // Initialize Sequelize with your database connection details
 // const sequelize = new Sequelize('Sedrah', 'root', 'Manal4Manal', {
-const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USER, process.env.DB_PASSWORD, {
-    host: process.env.DB_HOST,
+const sequelize = new Sequelize(u652187899_Sedrah, u652187899_Sedrah, Manal4Manal, {
+    host: srv1457.hstgr.io,
     dialect: 'mysql'
 });
 
