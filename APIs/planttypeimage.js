@@ -1,7 +1,7 @@
 
 const express = require('express');
 const route = express.Router();
-const { PlantType } = require('../model/planttype');
+const PlantType = require('../model/planttype');
 
 // will fetch all plant types along with their images(icons)
 //get: to read data

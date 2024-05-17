@@ -5,7 +5,6 @@ const Sequelize = require('sequelize');
 const sequelize = require('../db/connection');
 const User = require('./User'); // Import the User model
 const PlantType = require('./planttype'); // Import the PlantType model
-const PlantDiagnosis = require('./plantdiagnosis'); // Import the PlantType model
 
 
 // Define CropYieldPrediction model

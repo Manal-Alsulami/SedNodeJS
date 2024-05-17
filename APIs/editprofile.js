@@ -2,6 +2,7 @@
 const express = require('express');
 const route = express.Router();
 const User = require('../model/User');
+const verifyToken = require('../middleware/auth'); // Import the JWT middleware
 
 
 // Update profile information in the database
@@ -26,17 +27,11 @@ async function updateProfile(profileData, userId) {
 }
 
 //put: to update data
-route.put('/', async (req, res) => {
+route.put('/', verifyToken, async (req, res) => {
     try {
-
-        // Get user ID and profile data from request body
-        const { user_ID, profileData } = req.body;
-        const userId = req.query.user_ID; // Retrieve user ID from query parameter
-
-        // check user ID from the request query parameter
-        if (!userId) {
-            return res.status(400).json({ error: 'User ID is required' });
-        }
+        // Get  profile data from request body
+        const { profileData } = req.body;
+        const userId = req.userID; // get userID from verified token
 
         // Check if profile data is provided
         if (!profileData || Object.keys(profileData).length === 0) {
@@ -45,12 +40,10 @@ route.put('/', async (req, res) => {
 
         // Update profile information for the logged-in user
         await updateProfile(profileData, userId);
-
-
         return res.status(200).json({ message: 'Profile updated successfully' });
     } catch (error) {
         console.error('Error updating profile:', error);
-        return res.status(400).json({ error: error.message });
+        return res.status(400).json({ error: error.message }); //400 for validation error
     }
 });
 

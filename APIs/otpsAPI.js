@@ -35,8 +35,8 @@ async function sendOTP(email) {
         return { message: 'OTP sent successfully' };
     } catch (error) {
         console.error('Error sending OTP:', error);
-        // Return error response
-        return { error: 'Error sending OTP' };
+        // Return specific error message
+        return { error: 'Failed to send OTP. Please try again later.' };
     }
 }
 

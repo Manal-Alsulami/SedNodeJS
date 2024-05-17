@@ -2,6 +2,7 @@
 const express = require('express');
 const route = express.Router();
 const User = require('../model/User');
+const verifyToken = require('../middleware/auth'); // Import the JWT middleware
 
 // Extract password data from the request body
 function extractPasswordData(req) {
@@ -14,6 +15,7 @@ function checkRequiredFields(userData) {
     const { currentPassword, newPassword, rewriteNewPassword } = userData;
     return !(!currentPassword || !newPassword || !rewriteNewPassword);
 }
+
 
 async function changePassword(userData, userId) {
     const { currentPassword, newPassword, rewriteNewPassword } = userData;
@@ -36,22 +38,22 @@ async function changePassword(userData, userId) {
 }
 
 // PUT: to change password
-route.put('/', async (req, res) => {
+route.put('/', verifyToken, async (req, res) => {
     try {
-        // Extract user ID from query parameter
-        const userId = req.query.user_ID;
-
-        // Check if user ID is provided
-        if (!userId) {
-            return res.status(400).json({ error: 'User ID is required in the query parameter' });
-        }
 
         // Extract password data from request body
         const passwordData = extractPasswordData(req);
+        const userId = req.userId; // Get userId from the verified token
 
         // Validate required fields
         if (!checkRequiredFields(passwordData)) {
             return res.status(400).json({ message: 'Please provide all required fields' });
+        }
+        // Password validation
+        if (!/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z]{8,}$/.test(passwordData.newPassword)) {
+            return res.status(400).json({
+                message: 'Password must contain at least one numeric digit, one uppercase and lowercase letter, and be at least 8 characters long'
+            });
         }
 
         // Change the password for the logged-in user
