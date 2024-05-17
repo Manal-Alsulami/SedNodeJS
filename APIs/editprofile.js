@@ -3,32 +3,37 @@ const express = require('express');
 const route = express.Router();
 const User = require('../model/User');
 const verifyToken = require('../middleware/auth'); // Import the JWT middleware
+const { body, validationResult } = require('express-validator');
 
 
+// Validation middleware for profile update request
+const profileValidation = [
+    body('profileData.email').isEmail().withMessage('Invalid email address'),
+    body('profileData.phone').optional().isMobilePhone('any').withMessage('Invalid phone number')
+];
 // Update profile information in the database
 async function updateProfile(profileData, userId) {
     const { email, phone } = profileData;
 
     const updateData = {};
     if (email) {
-        // Validate email format
-        const validEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-        if (!validEmail) {
-            throw new Error('Email is in incorrect format');
-        }
         updateData.email = email;
     }
     if (phone) {
         updateData.phone = phone;
     }
-
     // Update the profile information in the database
     await User.update(updateData, { where: { user_ID: userId } });
 }
 
 //put: to update data
-route.put('/', verifyToken, async (req, res) => {
+route.put('/', verifyToken, profileValidation, async (req, res) => {
     try {
+        // Check for validation errors
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({ errors: errors.array() });
+        }
         // Get  profile data from request body
         const { profileData } = req.body;
         const userId = req.userID; // get userID from verified token
