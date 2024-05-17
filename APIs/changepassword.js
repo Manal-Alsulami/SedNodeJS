@@ -50,6 +50,7 @@ route.put('/', verifyToken, async (req, res) => {
             return res.status(400).json({ message: 'Please provide all required fields' });
         }
         // Password validation
+        console.log('New password:', passwordData.newPassword);
         if (!/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z]{8,}$/.test(passwordData.newPassword)) {
             return res.status(400).json({
                 message: 'Password must contain at least one numeric digit, one uppercase and lowercase letter, and be at least 8 characters long'
