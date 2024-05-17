@@ -11,11 +11,18 @@ const PlantType = sequelize.define('PlantType', {
         primaryKey: true,
         autoIncrement: true
     },
-    selected_Plant_Type: Sequelize.STRING(30),
-    plant_Type_Image: Sequelize.BLOB,
-    plant_types: Sequelize.STRING(30)
+    selected_Plant_Type: {
+        type: Sequelize.STRING(30)
+    },
+    plant_Type_Image: {
+        type: Sequelize.BLOB
+    },
+    plant_types: {
+        type: Sequelize.STRING(30)
+    }
 }, {
-    tableName: 'PlantType'  // Specify the table name explicitly
+    tableName: 'PlantType',  // Specify the table name explicitly
+    timestamps: false
 });
 
 

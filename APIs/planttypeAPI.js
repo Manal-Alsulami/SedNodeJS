@@ -1,7 +1,7 @@
 const express = require('express');
 const route = express.Router();
-const { PlantType } = require('../model/planttype'); // Import the PlantType model
-const { validationResult } = require('express-validator');
+const PlantType = require('../model/planttype'); // Import the PlantType model
+const validationResult = require('express-validator');
 //will handle the creation of new plant types.
 
 //post: to create data
@@ -25,4 +25,3 @@ route.post('/', async (req, res) => {
 });
 
 module.exports = route;
-

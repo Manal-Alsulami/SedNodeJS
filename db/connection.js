@@ -1,9 +1,12 @@
+
+
 //const { Sequelize } = require('sequelize');
 const Sequelize = require('sequelize');
 
 // Initialize Sequelize with your database connection details
-const sequelize = new Sequelize('Sedrah', 'root', 'Manal4Manal', {
-    host: 'localhost',
+// const sequelize = new Sequelize('Sedrah', 'root', 'Manal4Manal', {
+const sequelize = new Sequelize('u652187899_Sedrah', 'u652187899_Sedrah', 'Manal4Manal', {
+    host: 'srv1457.hstgr.io',
     dialect: 'mysql'
 });
 
@@ -18,3 +21,4 @@ sequelize.authenticate()
 
 // Export sequelize instance
 module.exports = sequelize;
+

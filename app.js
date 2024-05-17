@@ -1,10 +1,7 @@
 
 const express = require('express');
 const sequelize = require("./db/connection"); // Import Sequelize instance
-const passport = require('./config/passport'); // Import Passport middleware
-const jwtStrategy = require('passport-jwt').Strategy;
-const extractJwt = require('passport-jwt').ExtractJwt;
-const crypto = require('crypto');
+//const crypto = require('crypto');
 require('dotenv').config();
 
 
@@ -12,7 +9,7 @@ require('dotenv').config();
 const app = express();
 app.use(express.json());
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 2429;
 
 // Require API route files
 const signupAPI = require('./APIs/signup'); // Corrected line

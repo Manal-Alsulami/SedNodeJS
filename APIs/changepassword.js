@@ -2,6 +2,7 @@
 const express = require('express');
 const route = express.Router();
 const User = require('../model/User');
+const { body, validationResult } = require('express-validator');
 
 // Extract password data from the request body
 function extractPasswordData(req) {
@@ -9,11 +10,24 @@ function extractPasswordData(req) {
     return { currentPassword, newPassword, rewriteNewPassword };
 }
 
+// Validation middleware for change password request
+const passwordValidation = [
+    body('currentPassword').notEmpty().withMessage('Current password is required'),
+    body('newPassword').isLength({ min: 8 }).withMessage('New password must be at least 8 characters long')
+        .matches(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])/).withMessage('New password must contain at least one numeric digit, one uppercase and lowercase letter'),
+    body('rewriteNewPassword').custom((value, { req }) => {
+        if (value !== req.body.newPassword) {
+            throw new Error('Rewrite new password must match the new password');
+        }
+        return true;
+    })
+];
 // Check if all required fields are provided
 function checkRequiredFields(userData) {
     const { currentPassword, newPassword, rewriteNewPassword } = userData;
     return !(!currentPassword || !newPassword || !rewriteNewPassword);
 }
+
 
 async function changePassword(userData, userId) {
     const { currentPassword, newPassword, rewriteNewPassword } = userData;
@@ -36,26 +50,28 @@ async function changePassword(userData, userId) {
 }
 
 // PUT: to change password
-route.put('/', async (req, res) => {
+route.put('/', passwordValidation, async (req, res) => {
     try {
-        // Extract user ID from query parameter
-        const userId = req.query.user_ID;
-
-        // Check if user ID is provided
-        if (!userId) {
-            return res.status(400).json({ error: 'User ID is required in the query parameter' });
-        }
-
         // Extract password data from request body
-        const passwordData = extractPasswordData(req);
-
+        const { currentPassword, newPassword, rewriteNewPassword } = req.body;
+        // Extract userId from query parameters
+        const userId = req.query.user_ID;
+        if (!userId) {
+            return res.status(400).json({ message: 'User ID is required' });
+        }
         // Validate required fields
-        if (!checkRequiredFields(passwordData)) {
+        if (!checkRequiredFields(req.body)) {
             return res.status(400).json({ message: 'Please provide all required fields' });
         }
 
-        // Change the password for the logged-in user
-        await changePassword(passwordData, userId);
+        // Check for validation errors
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({ errors: errors.array() });
+        }
+
+        // Change the password for the specified user
+        await changePassword({ currentPassword, newPassword, rewriteNewPassword }, userId);
 
         return res.status(200).json({ message: 'Password changed successfully' });
     } catch (error) {
@@ -65,4 +81,3 @@ route.put('/', async (req, res) => {
 });
 
 module.exports = route;
-
