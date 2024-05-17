@@ -1,6 +1,6 @@
 
 const express = require('express');
-const jwt = require('jsonwebtoken');
+//const jwt = require('jsonwebtoken');
 const { body, validationResult } = require('express-validator');
 //const passport = require('passport');
 const route = express.Router();
@@ -52,15 +52,6 @@ route.post(
             // Perform login 
             const loginResult = await loginPerform(userData);
 
-            // Create a JWT token
-            const token = jwt.sign(
-                { userId: loginResult.user.id },
-                process.env.JWT_SECRET,
-                { expiresIn: '1h' }
-            );
-
-            console.log('Generated token:', token);
-
             // If login is successful return success msg and user data
             return res.status(200).json({ message: 'Login successful', user: loginResult.user, token });
 
@@ -73,3 +64,15 @@ route.post(
 
 module.exports = route;
 
+
+
+/**
+ *  // Create a JWT token
+            const token = jwt.sign(
+                { userId: loginResult.user.id },
+                process.env.JWT_SECRET,
+                { expiresIn: '1h' }
+            );
+
+            console.log('Generated token:', token);
+ */

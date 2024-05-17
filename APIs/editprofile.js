@@ -2,7 +2,6 @@
 const express = require('express');
 const route = express.Router();
 const User = require('../model/User');
-const verifyToken = require('../middleware/auth'); // Import the JWT middleware
 const { body, validationResult } = require('express-validator');
 
 
@@ -27,8 +26,12 @@ async function updateProfile(profileData, userId) {
 }
 
 //put: to update data
-route.put('/', verifyToken, profileValidation, async (req, res) => {
+route.put('/', profileValidation, async (req, res) => {
     try {
+        const userId = req.query.user_ID;
+        if (!userId) {
+            return res.status(400).json({ message: 'User ID is required' });
+        }
         // Check for validation errors
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
@@ -36,7 +39,6 @@ route.put('/', verifyToken, profileValidation, async (req, res) => {
         }
         // Get  profile data from request body
         const { profileData } = req.body;
-        const userId = req.userID; // get userID from verified token
 
         // Check if profile data is provided
         if (!profileData || Object.keys(profileData).length === 0) {

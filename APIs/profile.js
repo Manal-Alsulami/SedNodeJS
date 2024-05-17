@@ -3,14 +3,16 @@
 const express = require('express');
 const route = express.Router();
 const User = require('../model/User'); // Import the User model
-const verifyToken = require('../middleware/auth'); // Import the JWT verification middleware
 
 // Route to get user profile
-route.get('/', verifyToken, async (req, res) => {
+route.get('/', async (req, res) => {
     try {
-        const userId = req.userId; // Get userId from the verified token
+        const userId = req.query.user_ID; // Get userId from the query parameters
         console.log(userId);
 
+        if (!userId) {
+            return res.status(400).json({ error: 'User ID is required' });
+        }
         // find user by ID using Sequelize findOne method
         const user = await User.findOne({ where: { user_ID: userId } });
 
