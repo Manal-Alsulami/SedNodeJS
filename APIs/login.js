@@ -15,6 +15,7 @@ function extractUserData(req) {
 async function loginPerform(userData) {
     const { email, password } = userData;
     // Retrieve user from the database by email
+
     const user = await User.findOne({ where: { email } });
     // Check if user exists
     if (!user) {
@@ -57,6 +58,8 @@ route.post(
                 process.env.JWT_SECRET,
                 { expiresIn: '1h' }
             );
+
+            console.log('Generated token:', token);
 
             // If login is successful return success msg and user data
             return res.status(200).json({ message: 'Login successful', user: loginResult.user, token });
