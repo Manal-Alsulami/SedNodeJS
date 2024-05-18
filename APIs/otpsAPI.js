@@ -36,6 +36,7 @@ async function sendOTP(email) {
             text: `Your OTP is: ${otpValue}`,
         };
         await transporter.sendMail(mailOptions);
+
         // Return success response
         console.log(`OTP sent successfully to email: ${email}`);
         return { message: 'OTP sent successfully' };
