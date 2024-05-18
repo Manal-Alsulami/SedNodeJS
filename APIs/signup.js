@@ -4,7 +4,7 @@ const express = require('express');
 const { body, validationResult } = require('express-validator');
 const route = express.Router();
 const User = require('../model/User');
-const sendOTP = require('./otpsAPI'); // Correctly import the sendOTP function
+const { sendOTP } = require('./otpsAPI'); // Correctly import the sendOTP function
 
 // Extract user data from the request body
 function extractUserData(request) {

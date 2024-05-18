@@ -46,7 +46,7 @@ async function sendOTP(email) {
     }
 }
 
-module.exports = sendOTP; // Export the sendOTP function
+module.exports = { sendOTP }; // Export the sendOTP function
 
 // Route to handle OTP verification
 route.post('/verify', async (req, res) => {
