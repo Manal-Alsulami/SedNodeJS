@@ -5,13 +5,13 @@ const OTPs = require('../model/otps');
 const User = require('../model/User');
 const nodemailer = require('nodemailer');
 
-//create a transporter for sending emails
+// Create a transporter for sending emails
 const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
         user: 's.sedrah2023@gmail.com',
         pass: 'Sedrah@4Sedrah' // اشيل السبيسز واحدثه كمان في gmail 
-    } // hlaj zjyo ufxo vowf
+    }
 });
 
 // Function to generate and send OTP to user's email
@@ -46,10 +46,7 @@ async function sendOTP(email) {
     }
 }
 
-module.exports = sendOTP;// Export the sendOTP function
-
-//post: to create data
-//otp generate and verification
+module.exports = sendOTP; // Export the sendOTP function
 
 // Route to handle OTP verification
 route.post('/verify', async (req, res) => {
@@ -92,6 +89,7 @@ route.post('/verify', async (req, res) => {
 });
 
 module.exports = route;
+
 
 
 
