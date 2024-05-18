@@ -10,7 +10,7 @@ const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
         user: 's.sedrah2023@gmail.com',
-        pass: 'Sedrah@4Sedrah' // اشيل السبيسز واحدثه كمان في gmail 
+        pass: 'Sedrah@4Sedrah'
     }
 });
 
@@ -89,6 +89,7 @@ route.post('/verify', async (req, res) => {
 });
 
 module.exports = route;
+
 
 
 
