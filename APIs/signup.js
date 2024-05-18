@@ -4,7 +4,6 @@ const express = require('express');
 const { body, validationResult } = require('express-validator');
 const route = express.Router();
 const User = require('../model/User');
-const otpAPI = require('./otpsAPI'); // Import the otpAPI module
 const sendOTP = require('./otpsAPI');
 
 
@@ -60,7 +59,7 @@ route.post(
             return response.status(201).json({ message: 'OTP sent successfully. Verify OTP to complete registration.' });
         } catch (error) {
             console.error('Error signing up:', error);
-            return response.status(500).json({ message: 'Error signing up !' });
+            return response.status(500).json({ message: 'Error signing up !!' });
         }
     }
 );

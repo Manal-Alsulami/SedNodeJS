@@ -43,6 +43,7 @@ async function sendOTP(email) {
         return { error: 'Failed to send OTP. Please try again later.' };
     }
 }
+
 module.exports = sendOTP; // Export the sendOTP function
 
 //post: to create data
