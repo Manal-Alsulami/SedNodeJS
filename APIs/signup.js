@@ -4,7 +4,7 @@ const express = require('express');
 const { body, validationResult } = require('express-validator');
 const route = express.Router();
 const User = require('../model/User');
-const sendOTP = require('./otpsAPI');
+const sendOTP = require('./otpsAPI'); // Import the sendOTP function from otpsAPI.js
 
 
 // Extract user data from the request body
@@ -50,6 +50,7 @@ route.post(
             }
 
             // Send OTP and wait for verification
+            console.log(`Calling sendOTP for email: ${userData.email}`);
             const otpResponse = await sendOTP(userData.email);
             if (otpResponse.error) {
                 return response.status(500).json({ message: 'Error sending OTP' });
