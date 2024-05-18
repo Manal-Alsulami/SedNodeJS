@@ -9,8 +9,8 @@ const nodemailer = require('nodemailer');
 const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-        user: 'SedrahGP@gmail.com',
-        pass: 'hlajzjyoufxovowf' // اشيل السبيسز واحدثه كمان في gmail 
+        user: 's.sedrah2023@gmail.com',
+        pass: 'Sedrah@4Sedrah' // اشيل السبيسز واحدثه كمان في gmail 
     } // hlaj zjyo ufxo vowf
 });
 
@@ -20,8 +20,12 @@ async function sendOTP(email) {
         // Generate 4 digit OTP
         const otpValue = Math.floor(1000 + Math.random() * 9000);
 
-        // Save the OTP to the database
-        await OTPs.create({ email, OTP_value: otpValue, is_used: false });
+        // Set expiration time (e.g., 5 minutes from now)
+        const expiryTimestamp = new Date();
+        expiryTimestamp.setMinutes(expiryTimestamp.getMinutes() + 5); // Set expiration to 5 minutes from now
+
+        // Save the OTP with expiration time to the database
+        await OTPs.create({ email, OTP_value: otpValue, is_used: false, Expiry_timestamp: expiryTimestamp });
 
         // Send the OTP via email
         const mailOptions = {
@@ -39,30 +43,8 @@ async function sendOTP(email) {
         return { error: 'Failed to send OTP. Please try again later.' };
     }
 }
-
 //post: to create data
 //otp generate and verification
-
-// Route to handle OTP generation and sending
-route.post('/send', async (req, res) => {
-    try {
-        const { email } = req.body;
-
-        // Send OTP
-        const otpResponse = await sendOTP(email);
-
-        if (otpResponse.error) {
-            // Error handling for OTP sending failure
-            return res.status(500).json({ message: 'Error sending OTP' });
-        }
-
-        // Success message after sending OTP
-        return res.status(200).json({ message: 'OTP sent successfully' });
-    } catch (error) {
-        console.error('Error sending OTP:', error);
-        return res.status(500).json({ error: 'Error sending OTP' });
-    }
-});
 
 // Route to handle OTP verification
 route.post('/verify', async (req, res) => {
@@ -75,7 +57,7 @@ route.post('/verify', async (req, res) => {
                 email,
                 is_used: false
             },
-            order: [['createdAt', 'DESC']]
+            order: [['OTP_ID', 'DESC']]
         });
 
         // If no OTP record found, return error
@@ -87,7 +69,10 @@ route.post('/verify', async (req, res) => {
         if (otpRecord.OTP_value.toString() !== enteredOTP.toString()) {
             return res.status(401).json({ error: 'Incorrect OTP' });
         }
-
+        // Check if OTP is expired
+        if (otpRecord.Expiry_timestamp < new Date()) {
+            return res.status(401).json({ error: 'OTP has expired' });
+        }
         // Mark OTP as used
         await otpRecord.update({ is_used: true });
 

@@ -20,7 +20,7 @@ const OTPs = sequelize.define('OTPs', {
     Expiry_timestamp: Sequelize.DATE
 }, {
     tableName: 'OTPs', // Specify the table name explicitly
-    timestamps: false // Set timestamps to false if you don't want Sequelize to manage createdAt and updatedAt columns
+    timestamps: false // Set timestamps to false to don't want Sequelize to manage createdAt and updatedAt columns
 
 });
 

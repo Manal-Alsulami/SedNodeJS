@@ -4,8 +4,7 @@ const express = require('express');
 const { body, validationResult } = require('express-validator');
 const route = express.Router();
 const User = require('../model/User');
-
-//const otpAPI = require('./otpsAPI'); // Import the otpAPI module
+const otpAPI = require('./otpsAPI'); // Import the otpAPI module
 
 // Extract user data from the request body
 function extractUserData(request) {
@@ -49,8 +48,14 @@ route.post(
                 return response.status(400).json({ message: 'Email is already registered' });
             }
 
+            // Send OTP and wait for verification
+            const otpResponse = await otpAPI.sendOTP(userData.email);
+            if (otpResponse.error) {
+                return response.status(500).json({ message: 'Error sending OTP' });
+            }
+
             // Success message after sending OTP (assuming OTP process here)
-            return response.status(201).json({ message: 'User signed up successfully' });
+            return response.status(201).json({ message: 'OTP sent successfully. Verify OTP to complete registration.' });
         } catch (error) {
             console.error('Error signing up:', error);
             return response.status(500).json({ message: 'Error signing up' });
