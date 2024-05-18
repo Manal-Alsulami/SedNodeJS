@@ -34,9 +34,15 @@ route.post(
         const transaction = await sequelize.transaction();
 
         try {
+
             // Extract user data from request body
             const { name, email, password, phone } = request.body;
-
+            // Check if email already exists
+            const existingUser = await User.findOne({ where: { email } });
+            if (existingUser) {
+                await transaction.rollback();
+                return response.status(400).json({ error: 'Email is already registered' });
+            }
             // Create the user in the database
             const newUser = await User.create({ name, email, password, phone }, { transaction });
 
