@@ -7,7 +7,7 @@ const { body, validationResult } = require('express-validator');
 
 // Validation middleware for profile update request
 const profileValidation = [
-    body('profileData.email').isEmail().withMessage('Invalid email address'),
+    body('profileData.email').optional().isEmail().withMessage('Invalid email address'),
     body('profileData.phone').optional().isMobilePhone('any').withMessage('Invalid phone number')
 ];
 // Update profile information in the database
@@ -21,8 +21,12 @@ async function updateProfile(profileData, userId) {
     if (phone) {
         updateData.phone = phone;
     }
+    // Update the profile information in the database if there are fields to update
+    if (Object.keys(updateData).length > 0) {
+        await User.update(updateData, { where: { user_ID: userId } });
+    }
     // Update the profile information in the database
-    await User.update(updateData, { where: { user_ID: userId } });
+    //await User.update(updateData, { where: { user_ID: userId } });
 }
 
 //put: to update data
@@ -50,7 +54,7 @@ route.put('/', profileValidation, async (req, res) => {
         return res.status(200).json({ message: 'Profile updated successfully' });
     } catch (error) {
         console.error('Error updating profile:', error);
-        return res.status(400).json({ error: error.message }); //400 for validation error
+        return res.status(500).json({ error: 'Internal server error' }); //400 for validation error
     }
 });
 

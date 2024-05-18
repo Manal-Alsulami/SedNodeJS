@@ -1,53 +1,7 @@
-
 const express = require('express');
 const route = express.Router();
 const OTPs = require('../model/otps');
 const User = require('../model/User');
-const nodemailer = require('nodemailer');
-
-// Create a transporter for sending emails
-const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-        user: 's.sedrah2023@gmail.com',
-        pass: 'Sedrah@4Sedrah'
-    }
-});
-
-// Function to generate and send OTP to user's email
-async function sendOTP(email) {
-    try {
-        console.log(`Sending OTP to email: ${email}`);
-        // Generate 4 digit OTP
-        const otpValue = Math.floor(1000 + Math.random() * 9000);
-
-        // Set expiration time (e.g., 5 minutes from now)
-        const expiryTimestamp = new Date();
-        expiryTimestamp.setMinutes(expiryTimestamp.getMinutes() + 5); // Set expiration to 5 minutes from now
-
-        // Save the OTP with expiration time to the database
-        await OTPs.create({ email, OTP_value: otpValue, is_used: false, Expiry_timestamp: expiryTimestamp });
-
-        // Send the OTP via email
-        const mailOptions = {
-            from: 's.sedrah2023@gmail.com',
-            to: email,
-            subject: 'OTP code',
-            text: `Your OTP is: ${otpValue}`,
-        };
-        await transporter.sendMail(mailOptions);
-
-        // Return success response
-        console.log(`OTP sent successfully to email: ${email}`);
-        return { message: 'OTP sent successfully' };
-    } catch (error) {
-        console.error('Error sending OTP:', error);
-        // Return specific error message
-        return { error: 'Failed to send OTP. Please try again later.' };
-    }
-}
-
-module.exports = { sendOTP }; // Export the sendOTP function
 
 // Route to handle OTP verification
 route.post('/verify', async (req, res) => {
@@ -72,17 +26,17 @@ route.post('/verify', async (req, res) => {
         if (otpRecord.OTP_value.toString() !== enteredOTP.toString()) {
             return res.status(401).json({ error: 'Incorrect OTP' });
         }
+
         // Check if OTP is expired
         if (otpRecord.Expiry_timestamp < new Date()) {
             return res.status(401).json({ error: 'OTP has expired' });
         }
+
         // Mark OTP as used
         await otpRecord.update({ is_used: true });
 
-        // Create the user in the database (assuming you want to register the user after OTP verification)
-        const user = await User.create({ email, is_verified: true });
-
-        return res.status(200).json({ message: 'OTP verified successfully and user registered' });
+        // Return success response
+        return res.status(200).json({ message: 'OTP verified successfully' });
     } catch (error) {
         console.error('Error verifying OTP:', error);
         return res.status(500).json({ error: 'Error verifying OTP' });
@@ -90,8 +44,6 @@ route.post('/verify', async (req, res) => {
 });
 
 module.exports = route;
-
-
 
 
 

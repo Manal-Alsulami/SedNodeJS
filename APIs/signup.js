@@ -4,18 +4,16 @@ const express = require('express');
 const { body, validationResult } = require('express-validator');
 const route = express.Router();
 const User = require('../model/User');
-const { sendOTP } = require('./otpsAPI'); // Correctly import the sendOTP function
+
+// Function to generate a random OTP
+function generateOTP() {
+    return Math.floor(1000 + Math.random() * 9000);
+}
 
 // Extract user data from the request body
 function extractUserData(request) {
     const { name, email, password, phone } = request.body;
     return { name, email, password, phone };
-}
-
-// Check if the email is already registered
-async function checkEmailAvailability(email) {
-    const existingUser = await User.findOne({ where: { email } });
-    return !existingUser;
 }
 
 // Route to handle user signup
@@ -39,23 +37,14 @@ route.post(
         }
 
         try {
+            // Generate OTP
+            const otp = generateOTP();
+
             // Extract user data from request body
             const userData = extractUserData(request);
 
-            // Check if email is already registered
-            if (!await checkEmailAvailability(userData.email)) {
-                return response.status(400).json({ message: 'Email is already registered' });
-            }
-
-            // Send OTP and wait for verification
-            console.log(`Calling sendOTP for email: ${userData.email}`);
-            const otpResponse = await sendOTP(userData.email);
-            if (otpResponse.error) {
-                return response.status(500).json({ message: 'Error sending OTP' });
-            }
-
-            // Success message after sending OTP (assuming OTP process here)
-            return response.status(201).json({ message: 'OTP sent successfully. Verify OTP to complete registration.' });
+            // Send OTP in response
+            return response.status(200).json({ otp, userData });
         } catch (error) {
             console.error('Error signing up:', error);
             return response.status(500).json({ message: 'Error signing up!' });
@@ -64,6 +53,7 @@ route.post(
 );
 
 module.exports = route;
+
 
 
 
