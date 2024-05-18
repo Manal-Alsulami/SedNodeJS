@@ -1,9 +1,10 @@
 
-
 const express = require('express');
 const { body, validationResult } = require('express-validator');
 const route = express.Router();
 const User = require('../model/User');
+const OTPs = require('../model/otps');
+const sequelize = require('../db/connection');
 
 // Function to generate a random OTP
 function generateOTP() {
@@ -36,16 +37,36 @@ route.post(
             return response.status(400).json({ errors: errors.array() });
         }
 
-        try {
-            // Generate OTP
-            const otp = generateOTP();
+        const transaction = await sequelize.transaction();
 
+        try {
             // Extract user data from request body
             const userData = extractUserData(request);
 
-            // Send OTP in response
-            return response.status(200).json({ otp, userData });
+            // Create the user in the database
+            const newUser = await User.create(userData, { transaction });
+
+            // Generate OTP
+            const otp = generateOTP();
+
+            // Set expiration time (e.g., 5 minutes from now)
+            const expiryTimestamp = new Date();
+            expiryTimestamp.setMinutes(expiryTimestamp.getMinutes() + 5); // Set expiration to 5 minutes from now
+
+            // Save the OTP with expiration time to the database
+            await OTPs.create({
+                user_ID: newUser.user_ID,
+                OTP_value: otp,
+                is_used: false,
+                Expiry_timestamp: expiryTimestamp
+            }, { transaction });
+
+            await transaction.commit();
+
+            // Send OTP and user data in response
+            return response.status(200).json({ otp, userData: { ...userData, user_ID: newUser.user_ID } });
         } catch (error) {
+            await transaction.rollback();
             console.error('Error signing up:', error);
             return response.status(500).json({ message: 'Error signing up!' });
         }
@@ -53,6 +74,7 @@ route.post(
 );
 
 module.exports = route;
+
 
 
 
