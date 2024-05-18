@@ -1,3 +1,5 @@
+
+
 const express = require('express');
 const route = express.Router();
 const OTPs = require('../model/otps');
@@ -6,25 +8,18 @@ const User = require('../model/User');
 // Route to handle OTP verification
 route.post('/verify', async (req, res) => {
     try {
-        const { enteredOTP, userData } = req.body;
-        const { user_ID } = userData;
+        const { enteredOTP } = req.body;
 
         // Find the latest OTP record for the user
         const otpRecord = await OTPs.findOne({
             where: {
-                user_ID,
+                OTP_value: enteredOTP,
                 is_used: false
             },
             order: [['OTP_ID', 'DESC']]
         });
 
-        // If no OTP record found, return error
         if (!otpRecord) {
-            return res.status(401).json({ error: 'Incorrect OTP' });
-        }
-
-        // Check if entered OTP matches
-        if (otpRecord.OTP_value.toString() !== enteredOTP.toString()) {
             return res.status(401).json({ error: 'Incorrect OTP' });
         }
 
@@ -36,7 +31,15 @@ route.post('/verify', async (req, res) => {
         // Mark OTP as used
         await otpRecord.update({ is_used: true });
 
-        return res.status(200).json({ message: 'OTP verified successfully', userData });
+        // Retrieve user data associated with the OTP
+        const user = await User.findByPk(otpRecord.user_ID);
+
+        if (!user) {
+            return res.status(401).json({ error: 'User not found' });
+        }
+
+        // User is verified, return success
+        return res.status(200).json({ message: 'OTP verified successfully', userData: user });
     } catch (error) {
         console.error('Error verifying OTP:', error);
         return res.status(500).json({ error: 'Error verifying OTP' });
@@ -44,6 +47,7 @@ route.post('/verify', async (req, res) => {
 });
 
 module.exports = route;
+
 
 
 

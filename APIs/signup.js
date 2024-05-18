@@ -11,12 +11,6 @@ function generateOTP() {
     return Math.floor(1000 + Math.random() * 9000);
 }
 
-// Extract user data from the request body
-function extractUserData(request) {
-    const { name, email, password, phone } = request.body;
-    return { name, email, password, phone };
-}
-
 // Route to handle user signup
 route.post(
     '/',
@@ -41,10 +35,10 @@ route.post(
 
         try {
             // Extract user data from request body
-            const userData = extractUserData(request);
+            const { name, email, password, phone } = request.body;
 
             // Create the user in the database
-            const newUser = await User.create(userData, { transaction });
+            const newUser = await User.create({ name, email, password, phone }, { transaction });
 
             // Generate OTP
             const otp = generateOTP();
@@ -64,7 +58,7 @@ route.post(
             await transaction.commit();
 
             // Send OTP and user data in response
-            return response.status(200).json({ otp, userData: { ...userData, user_ID: newUser.user_ID } });
+            return response.status(200).json({ otp, userData: { name, email, password, phone, user_ID: newUser.user_ID } });
         } catch (error) {
             await transaction.rollback();
             console.error('Error signing up:', error);
@@ -74,6 +68,7 @@ route.post(
 );
 
 module.exports = route;
+
 
 
 
