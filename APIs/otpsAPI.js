@@ -3,6 +3,7 @@
 const express = require('express');
 const route = express.Router();
 const OTPs = require('../model/otps');
+const User = require('../model/User');
 const sequelize = require('../db/connection');
 
 // Route to handle OTP verification
@@ -33,10 +34,21 @@ route.post('/verify', async (req, res) => {
         // Mark OTP as used
         await otpRecord.update({ is_used: true }, { transaction });
 
+        // Retrieve user data from OTP record
+        const userData = {
+            name: req.body.name,
+            email: req.body.email,
+            password: req.body.password,
+            phone: req.body.phone
+        };
+
+        // Create user in the database
+        const newUser = await User.create(userData, { transaction });
+
         await transaction.commit();
 
         // User is verified, return success
-        return res.status(200).json({ message: 'OTP verified successfully' });
+        return res.status(200).json({ message: 'OTP verified successfully', userData: newUser });
     } catch (error) {
         await transaction.rollback();
         console.error('Error verifying OTP:', error);
@@ -45,6 +57,7 @@ route.post('/verify', async (req, res) => {
 });
 
 module.exports = route;
+
 
 
 

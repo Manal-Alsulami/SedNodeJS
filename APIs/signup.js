@@ -32,12 +32,6 @@ route.post(
             // Extract user data from request body
             const { name, email, password, phone } = request.body;
 
-            // Check if email already exists
-            const existingUser = await OTPs.findOne({ where: { email } });
-            if (existingUser) {
-                return response.status(400).json({ error: 'Email is already registered' });
-            }
-
             // Generate OTP
             const otp = generateOTP();
 
@@ -71,6 +65,7 @@ function generateOTP() {
 }
 
 module.exports = route;
+
 
 
 
