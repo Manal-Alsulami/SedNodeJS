@@ -4,6 +4,7 @@ const express = require('express');
 const { body, validationResult } = require('express-validator');
 const route = express.Router();
 const OTPs = require('../model/otps');
+const User = require('../model/User');
 const sequelize = require('../db/connection');
 
 // In-memory storage for user data
