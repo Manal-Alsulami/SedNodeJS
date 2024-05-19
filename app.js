@@ -14,7 +14,7 @@ const PORT = process.env.PORT || 2429;
 // Require API route files
 const signupAPI = require('./APIs/signup').route; // Corrected line
 const loginAPI = require('./APIs/login');
-const forgetpasswordAPI = ('./APIs/forgetpassword');
+const forgetpasswordAPI = require('./APIs/forgetpassword');
 const otpsAPI = require('./APIs/otpsAPI');
 const profileAPI = require('./APIs/profile'); // Corrected line
 const editProfileAPI = require('./APIs/editprofile');
