@@ -4,6 +4,7 @@ const express = require('express');
 const { body, validationResult } = require('express-validator');
 const route = express.Router();
 const OTPs = require('../model/otps');
+const sequelize = require('../db/connection');
 
 // In-memory storage for user data
 const tempUserData = {};
@@ -33,6 +34,8 @@ route.post(
             return response.status(400).json({ errors: errors.array() });
         }
 
+        const transaction = await sequelize.transaction();
+
         try {
             // Extract user data from request body
             const { name, email, password, phone } = request.body;
@@ -48,21 +51,26 @@ route.post(
 
             // Set expiration time (e.g., 5 minutes from now)
             const expiryTimestamp = new Date();
-            expiryTimestamp.setMinutes(expiryTimestamp.getMinutes() + 5); // Set expiration to 5 minutes from now
+            expiryTimestamp.setMinutes(expiryTimestamp.getMinutes() + 2); // Set expiration to 2 minutes from now
 
-            // Save the OTP with expiration time to the database
+            // Save the OTP with expiration time and email to the database
             await OTPs.create({
+                email,
+                user_ID: newUser.user_ID,
                 OTP_value: otp,
                 is_used: false,
                 Expiry_timestamp: expiryTimestamp
-            });
+            }, { transaction });
 
             // Store user data temporarily in memory
             tempUserData[email] = { name, email, password, phone };
 
+            await transaction.commit();
+
             // Send OTP and email in response
             return response.status(200).json({ otp, email });
         } catch (error) {
+            await transaction.rollback();
             console.error('Error signing up:', error);
             return response.status(500).json({ message: 'Error signing up!' });
         }
@@ -70,6 +78,7 @@ route.post(
 );
 
 module.exports = { route, tempUserData };
+
 
 
 

@@ -14,6 +14,10 @@ const OTPs = sequelize.define('OTPs', {
         primaryKey: true,
         autoIncrement: true
     },
+    email: {
+        type: Sequelize.STRING,
+        allowNull: false
+    },
     user_ID: Sequelize.INTEGER,
     OTP_value: Sequelize.INTEGER,
     is_used: Sequelize.BOOLEAN,

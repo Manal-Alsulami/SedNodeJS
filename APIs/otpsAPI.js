@@ -13,9 +13,10 @@ route.post('/verify', async (req, res) => {
     try {
         const { enteredOTP, email } = req.body;
 
-        // Find the latest OTP record for the entered OTP
+        // Find the OTP record for the given email and OTP value
         const otpRecord = await OTPs.findOne({
             where: {
+                email,
                 OTP_value: enteredOTP,
                 is_used: false
             },
@@ -58,6 +59,7 @@ route.post('/verify', async (req, res) => {
 });
 
 module.exports = route;
+
 
 
 
