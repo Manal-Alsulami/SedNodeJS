@@ -68,7 +68,7 @@ route.post(
             await transaction.commit();
 
             // Send OTP and email in response
-            return response.status(200).json({ otp, email, userData: { name, email, password, phone } });
+            return response.status(200).json({ otp, email });
         } catch (error) {
             await transaction.rollback();
             console.error('Error signing up:', error);
@@ -77,7 +77,8 @@ route.post(
     }
 );
 
-module.exports = route;
+module.exports = { route, tempUserData };
+
 
 
 

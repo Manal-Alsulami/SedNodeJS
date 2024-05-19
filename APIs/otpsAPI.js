@@ -5,7 +5,7 @@ const route = express.Router();
 const OTPs = require('../model/otps');
 const User = require('../model/User');
 const sequelize = require('../db/connection');
-const tempUserData = require('./signup').tempUserData;
+const { tempUserData } = require('./signup');
 
 // Route to handle OTP verification
 route.post('/verify', async (req, res) => {
@@ -59,6 +59,7 @@ route.post('/verify', async (req, res) => {
 });
 
 module.exports = route;
+
 
 
 
