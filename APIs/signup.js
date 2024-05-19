@@ -4,9 +4,8 @@ const express = require('express');
 const { body, validationResult } = require('express-validator');
 const route = express.Router();
 const OTPs = require('../model/otps');
-const sequelize = require('../db/connection');
 
-// Temporary storage for user data
+// In-memory storage for user data
 const tempUserData = {};
 
 // Function to generate a random OTP
@@ -19,12 +18,7 @@ route.post(
     '/',
     [
         body('name').notEmpty().withMessage('Name is required'),
-        body('email').isEmail().withMessage('Invalid email format').custom(async (value) => {
-            const existingUser = await User.findOne({ where: { email: value } });
-            if (existingUser) {
-                throw new Error('Email is already registered');
-            }
-        }),
+        body('email').isEmail().withMessage('Invalid email format'),
         body('password')
             .isLength({ min: 8 }).withMessage('Password must be at least 8 characters long')
             .notEmpty().withMessage('Password is required')
@@ -43,6 +37,12 @@ route.post(
             // Extract user data from request body
             const { name, email, password, phone } = request.body;
 
+            // Check if email already exists
+            const existingUser = await User.findOne({ where: { email } });
+            if (existingUser) {
+                return response.status(400).json({ error: 'Email is already registered' });
+            }
+
             // Generate OTP
             const otp = generateOTP();
 
@@ -52,16 +52,15 @@ route.post(
 
             // Save the OTP with expiration time to the database
             await OTPs.create({
-                user_ID: null, // No user ID at this point
                 OTP_value: otp,
                 is_used: false,
                 Expiry_timestamp: expiryTimestamp
             });
 
-            // Store user data temporarily using email as the key
+            // Store user data temporarily in memory
             tempUserData[email] = { name, email, password, phone };
 
-            // Send OTP in response
+            // Send OTP and email in response
             return response.status(200).json({ otp, email });
         } catch (error) {
             console.error('Error signing up:', error);
@@ -70,7 +69,10 @@ route.post(
     }
 );
 
-module.exports = route;
+module.exports = { route, tempUserData };
+
+
+
 
 
 
