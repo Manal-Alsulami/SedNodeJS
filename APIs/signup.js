@@ -1,10 +1,13 @@
 
+
 const express = require('express');
 const { body, validationResult } = require('express-validator');
 const route = express.Router();
-const User = require('../model/User');
 const OTPs = require('../model/otps');
 const sequelize = require('../db/connection');
+
+// Temporary storage for user data
+const tempUserData = {};
 
 // Function to generate a random OTP
 function generateOTP() {
@@ -16,7 +19,12 @@ route.post(
     '/',
     [
         body('name').notEmpty().withMessage('Name is required'),
-        body('email').isEmail().withMessage('Invalid email format'),
+        body('email').isEmail().withMessage('Invalid email format').custom(async (value) => {
+            const existingUser = await User.findOne({ where: { email: value } });
+            if (existingUser) {
+                throw new Error('Email is already registered');
+            }
+        }),
         body('password')
             .isLength({ min: 8 }).withMessage('Password must be at least 8 characters long')
             .notEmpty().withMessage('Password is required')
@@ -31,20 +39,9 @@ route.post(
             return response.status(400).json({ errors: errors.array() });
         }
 
-        const transaction = await sequelize.transaction();
-
         try {
-
             // Extract user data from request body
             const { name, email, password, phone } = request.body;
-            // Check if email already exists
-            const existingUser = await User.findOne({ where: { email } });
-            if (existingUser) {
-                await transaction.rollback();
-                return response.status(400).json({ error: 'Email is already registered' });
-            }
-            // Create the user in the database
-            const newUser = await User.create({ name, email, password, phone }, { transaction });
 
             // Generate OTP
             const otp = generateOTP();
@@ -55,18 +52,18 @@ route.post(
 
             // Save the OTP with expiration time to the database
             await OTPs.create({
-                user_ID: newUser.user_ID,
+                user_ID: null, // No user ID at this point
                 OTP_value: otp,
                 is_used: false,
                 Expiry_timestamp: expiryTimestamp
-            }, { transaction });
+            });
 
-            await transaction.commit();
+            // Store user data temporarily using email as the key
+            tempUserData[email] = { name, email, password, phone };
 
-            // Send OTP and user data in response
-            return response.status(200).json({ otp, userData: { name, email, password, phone, user_ID: newUser.user_ID } });
+            // Send OTP in response
+            return response.status(200).json({ otp, email });
         } catch (error) {
-            await transaction.rollback();
             console.error('Error signing up:', error);
             return response.status(500).json({ message: 'Error signing up!' });
         }
@@ -74,6 +71,7 @@ route.post(
 );
 
 module.exports = route;
+
 
 
 

@@ -53,7 +53,7 @@ route.post(
             const loginResult = await loginPerform(userData);
 
             // If login is successful return success msg and user data
-            return res.status(200).json({ message: 'Login successful', user: loginResult.user, token });
+            return res.status(200).json({ message: 'Login successful', user: loginResult.user });
 
         } catch (error) {
             // If an error occurs during login (user not found or incorrect password)
