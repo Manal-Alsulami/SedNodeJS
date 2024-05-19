@@ -14,6 +14,7 @@ const PORT = process.env.PORT || 2429;
 // Require API route files
 const signupAPI = require('./APIs/signup').route; // Corrected line
 const loginAPI = require('./APIs/login');
+const forgetpasswordAPI = ('./APIs/forgetpassword');
 const otpsAPI = require('./APIs/otpsAPI');
 const profileAPI = require('./APIs/profile'); // Corrected line
 const editProfileAPI = require('./APIs/editprofile');
@@ -25,6 +26,7 @@ const planttypeimageAPI = require('./APIs/planttypeimage'); // Import the plantt
 // Use API route files
 app.use('/APIs/signup', signupAPI); // Corrected line
 app.use('/APIs/login', loginAPI);
+app.use('APIs/forgetpassword', forgetpasswordAPI);
 app.use('/APIs/otpsAPI', otpsAPI);
 app.use('/APIs/profile', profileAPI);
 app.use('/APIs/editprofile', editProfileAPI);
