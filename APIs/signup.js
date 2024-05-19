@@ -7,14 +7,6 @@ const OTPs = require('../model/otps');
 const sequelize = require('../db/connection');
 const User = require('../model/User');
 
-// In-memory storage for user data
-const tempUserData = {};
-
-// Function to generate a random OTP
-function generateOTP() {
-    return Math.floor(1000 + Math.random() * 9000);
-}
-
 // Route to handle user signup
 route.post(
     '/',
@@ -57,14 +49,10 @@ route.post(
             // Save the OTP with expiration time and email to the database
             await OTPs.create({
                 email,
-                user_ID: newUser.user_ID,
                 OTP_value: otp,
                 is_used: false,
                 Expiry_timestamp: expiryTimestamp
             }, { transaction });
-
-            // Store user data temporarily in memory
-            tempUserData[email] = { name, email, password, phone };
 
             await transaction.commit();
 
@@ -78,7 +66,13 @@ route.post(
     }
 );
 
-module.exports = { route, tempUserData };
+// Function to generate a random OTP
+function generateOTP() {
+    return Math.floor(1000 + Math.random() * 9000);
+}
+
+module.exports = route;
+
 
 
 
