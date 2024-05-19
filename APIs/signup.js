@@ -5,7 +5,6 @@ const { body, validationResult } = require('express-validator');
 const route = express.Router();
 const OTPs = require('../model/otps');
 const sequelize = require('../db/connection');
-const User = require('../model/User');
 
 // Route to handle user signup
 route.post(
@@ -34,7 +33,7 @@ route.post(
             const { name, email, password, phone } = request.body;
 
             // Check if email already exists
-            const existingUser = await User.findOne({ where: { email } });
+            const existingUser = await OTPs.findOne({ where: { email } });
             if (existingUser) {
                 return response.status(400).json({ error: 'Email is already registered' });
             }
@@ -72,6 +71,8 @@ function generateOTP() {
 }
 
 module.exports = route;
+
+
 
 
 
