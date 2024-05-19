@@ -41,7 +41,7 @@ route.post('/verify', async (req, res) => {
         // Create a new user with extracted user data
         const newUser = await User.create(userData, { transaction });
 
-        // Mark OTP as used and assign user_ID
+        // Update the OTP record with user_ID
         await otpRecord.update({ is_used: true, user_ID: newUser.user_ID }, { transaction });
 
         await transaction.commit();
