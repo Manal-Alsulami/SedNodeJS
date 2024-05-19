@@ -32,9 +32,6 @@ route.post('/verify', async (req, res) => {
             return res.status(401).json({ error: 'OTP has expired' });
         }
 
-        // Mark OTP as used
-        await otpRecord.update({ is_used: true }, { transaction });
-
         // Retrieve user data from in-memory storage
         const userData = tempUserData[email];
         if (!userData) {
@@ -43,6 +40,9 @@ route.post('/verify', async (req, res) => {
 
         // Create a new user with extracted user data
         const newUser = await User.create(userData, { transaction });
+
+        // Mark OTP as used and assign user_ID
+        await otpRecord.update({ is_used: true, user_ID: newUser.user_ID }, { transaction });
 
         await transaction.commit();
 
