@@ -5,6 +5,7 @@ const route = express.Router();
 const OTPs = require('../model/otps');
 const User = require('../model/User');
 const sequelize = require('../db/connection');
+const tempUserData = require('./signup').tempUserData;
 
 // Route to handle OTP verification
 route.post('/verify', async (req, res) => {
@@ -34,18 +35,19 @@ route.post('/verify', async (req, res) => {
         // Mark OTP as used
         await otpRecord.update({ is_used: true }, { transaction });
 
-        // Retrieve user data from OTP record
-        const userData = {
-            name: req.body.name,
-            email: req.body.email,
-            password: req.body.password,
-            phone: req.body.phone
-        };
+        // Retrieve user data from in-memory storage
+        const userData = tempUserData[email];
+        if (!userData) {
+            return res.status(401).json({ error: 'User data not found' });
+        }
 
-        // Create user in the database
+        // Create a new user with extracted user data
         const newUser = await User.create(userData, { transaction });
 
         await transaction.commit();
+
+        // Clear temporary user data
+        delete tempUserData[email];
 
         // User is verified, return success
         return res.status(200).json({ message: 'OTP verified successfully', userData: newUser });
@@ -57,6 +59,7 @@ route.post('/verify', async (req, res) => {
 });
 
 module.exports = route;
+
 
 
 

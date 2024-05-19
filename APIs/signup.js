@@ -6,6 +6,14 @@ const route = express.Router();
 const OTPs = require('../model/otps');
 const sequelize = require('../db/connection');
 
+// In-memory storage for user data
+const tempUserData = {};
+
+// Function to generate a random OTP
+function generateOTP() {
+    return Math.floor(1000 + Math.random() * 9000);
+}
+
 // Route to handle user signup
 route.post(
     '/',
@@ -32,6 +40,12 @@ route.post(
             // Extract user data from request body
             const { name, email, password, phone } = request.body;
 
+            // Check if email already exists
+            const existingUser = await User.findOne({ where: { email } });
+            if (existingUser) {
+                return response.status(400).json({ error: 'Email is already registered' });
+            }
+
             // Generate OTP
             const otp = generateOTP();
 
@@ -47,10 +61,13 @@ route.post(
                 Expiry_timestamp: expiryTimestamp
             }, { transaction });
 
+            // Store user data temporarily in memory
+            tempUserData[email] = { name, email, password, phone };
+
             await transaction.commit();
 
             // Send OTP and email in response
-            return response.status(200).json({ otp, email });
+            return response.status(200).json({ otp, email, userData: { name, email, password, phone } });
         } catch (error) {
             await transaction.rollback();
             console.error('Error signing up:', error);
@@ -59,12 +76,8 @@ route.post(
     }
 );
 
-// Function to generate a random OTP
-function generateOTP() {
-    return Math.floor(1000 + Math.random() * 9000);
-}
-
 module.exports = route;
+
 
 
 
