@@ -1,5 +1,6 @@
+
+
 // Define CropYieldPrediction model
-// Import Sequelize
 
 const Sequelize = require('sequelize');
 const sequelize = require('../db/connection');

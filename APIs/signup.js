@@ -1,11 +1,13 @@
 
 
-const express = require('express');
-const { body, validationResult } = require('express-validator');
+const express = require("express");
+const { body, validationResult } = require("express-validator");
 const route = express.Router();
-const OTPs = require('../model/otps');
-const User = require('../model/User');
-const sequelize = require('../db/connection');
+const OTPs = require("../model/otps");
+const User = require("../model/User");
+const sequelize = require("../db/connection");
+const bcrypt = require("bcrypt");
+const sendEmail = require("../lib/email");
 
 // In-memory storage for user data
 const tempUserData = {};
@@ -17,16 +19,20 @@ function generateOTP() {
 
 // Route to handle user signup
 route.post(
-    '/',
+    "/",
     [
-        body('name').notEmpty().withMessage('Name is required'),
-        body('email').isEmail().withMessage('Invalid email format'),
-        body('password')
-            .isLength({ min: 8 }).withMessage('Password must be at least 8 characters long')
-            .notEmpty().withMessage('Password is required')
+        body("name").notEmpty().withMessage("Name is required"),
+        body("email").isEmail().withMessage("Invalid email format"),
+        body("password")
+            .isLength({ min: 8 })
+            .withMessage("Password must be at least 8 characters long")
+            .notEmpty()
+            .withMessage("Password is required")
             .matches(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}$/)
-            .withMessage('Password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, and one number'),
-        body('phone').notEmpty().withMessage('Phone number is required')
+            .withMessage(
+                "Password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, and one number"
+            ),
+        body("phone").notEmpty().withMessage("Phone number is required"),
     ],
     async (request, response) => {
         // Validate request
@@ -44,7 +50,9 @@ route.post(
             // Check if email already exists
             const existingUser = await User.findOne({ where: { email } });
             if (existingUser) {
-                return response.status(400).json({ error: 'Email is already registered' });
+                return response
+                    .status(400)
+                    .json({ error: "Email is already registered" });
             }
 
             // Generate OTP
@@ -54,25 +62,50 @@ route.post(
             const expiryTimestamp = new Date();
             expiryTimestamp.setMinutes(expiryTimestamp.getMinutes() + 2); // Set expiration to 2 minutes from now
 
-            // Save the OTP with expiration time and email to the database
-            await OTPs.create({
-                email,
-                OTP_value: otp,
-                is_used: false,
-                Expiry_timestamp: expiryTimestamp
-            }, { transaction });
-
             // Store user data temporarily in memory
-            tempUserData[email] = { name, email, password, phone };
+            // tempUserData[email] = { name, email, password, phone };
+
+            // Hash the password
+            const hashedPassword = await bcrypt.hash(password, 10);
+            // Create a new user in the database
+            const newUser = await User.create(
+                {
+                    name,
+                    email,
+                    password: hashedPassword,
+                    phone,
+                },
+                { transaction }
+            );
+
+            // Save the OTP with expiration time and email to the database
+            await OTPs.create(
+                {
+                    user_ID: newUser.user_ID,
+                    email,
+                    OTP_value: otp,
+                    is_used: false,
+                    Expiry_timestamp: expiryTimestamp,
+                },
+                { transaction }
+            );
+
+            // Send OTP to the user's email
+            await sendEmail(
+                email,
+                "Verify OTP",
+                `Please use this OTP to verify your email address: ${otp}`
+            );
 
             await transaction.commit();
-
             // Send OTP and email in response
-            return response.status(200).json({ otp, email });
+            // return response.status(200).json({ otp, email });
+            delete newUser.password;
+            return response.status(201).json(newUser);
         } catch (error) {
             await transaction.rollback();
-            console.error('Error signing up:', error);
-            return response.status(500).json({ message: 'Error signing up!' });
+            console.error("Error signing up:", error);
+            return response.status(500).json({ message: "Error signing up!" });
         }
     }
 );

@@ -2,7 +2,6 @@
 const Sequelize = require('sequelize');
 const sequelize = require('../db/connection');
 const User = require('./User'); // Import the User model
-const PlantType = require('./planttype'); // Import the PlantType model
 
 
 
@@ -15,15 +14,13 @@ const SoilAnalysis = sequelize.define('SoilAnalysis', {
         autoIncrement: true
     },
     user_ID: Sequelize.INTEGER,
-    PlantType_ID: Sequelize.INTEGER,
-    selected_Plant_Type: Sequelize.STRING(30),
     Image: Sequelize.BLOB,
     SoilResult: Sequelize.TEXT
 }, {
     tableName: 'SoilAnalysis' // Specify the table name explicitly
 });
 SoilAnalysis.belongsTo(User, { foreignKey: 'user_ID' });
-SoilAnalysis.belongsTo(PlantType, { foreignKey: 'PlantType_ID' });
+//SoilAnalysis.belongsTo(PlantType, { foreignKey: 'PlantType_ID' });
 
 
 module.exports = SoilAnalysis;

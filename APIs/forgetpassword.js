@@ -1,11 +1,14 @@
 
-const express = require('express');
-const { body, validationResult } = require('express-validator');
-const { Op } = require('sequelize'); // Import Op from Sequelize
+
+const express = require("express");
+const { body, validationResult } = require("express-validator");
+const { Op } = require("sequelize"); // Import Op from Sequelize
 const route = express.Router();
-const OTPs = require('../model/otps');
-const User = require('../model/User');
-const sequelize = require('../db/connection');
+const OTPs = require("../model/otps");
+const User = require("../model/User");
+const sequelize = require("../db/connection");
+const sendEmail = require("../lib/email");
+const bcrypt = require("bcrypt");
 
 // Function to generate a random OTP
 function generateOTP() {
@@ -14,10 +17,8 @@ function generateOTP() {
 
 // Route to check email and generate OTP
 route.post(
-    '/checkemail',
-    [
-        body('email').isEmail().withMessage('Invalid email format')
-    ],
+    "/checkemail",
+    [body("email").isEmail().withMessage("Invalid email format")],
     async (req, res) => {
         const { email } = req.body;
 
@@ -25,7 +26,7 @@ route.post(
             // Check if email exists
             const existingUser = await User.findOne({ where: { email } });
             if (!existingUser) {
-                return res.status(400).json({ error: 'Email not found' });
+                return res.status(400).json({ error: "Email not found" });
             }
 
             // Generate OTP
@@ -37,34 +38,46 @@ route.post(
 
             // Save the OTP with expiration time and email to the database
             await OTPs.create({
+                user_ID: existingUser.user_ID,
                 email,
                 OTP_value: otp,
                 is_used: false,
-                Expiry_timestamp: expiryTimestamp
+                Expiry_timestamp: expiryTimestamp,
             });
 
+            // Send OTP via email
+            await sendEmail(
+                email,
+                "Verify OTP",
+                "Please use this OTP to reset your password: " + otp
+            );
+
+            return res.status(200).json({ message: "OTP sent successfully" });
+
             // Send OTP in response
-            return res.status(200).json({ otp });
+            //   return res.status(200).json({ otp });
         } catch (error) {
-            console.error('Error checking email and generating OTP:', error);
-            return res.status(500).json({ error: 'Internal server error' });
+            console.error("Error checking email and generating OTP:", error);
+            return res.status(500).json({ error: "Internal server error" });
         }
     }
 );
 
 // Route to verify OTP and change password
 route.post(
-    '/changePassword',
+    "/changePassword",
     [
-        body('email').isEmail().withMessage('Invalid email format'),
-        body('otp').isNumeric().withMessage('OTP must be numeric'),
-        body('newPassword').isLength({ min: 8 }).withMessage('Password must be at least 8 characters long'),
-        body('rewriteNewPassword').custom((value, { req }) => {
+        body("email").isEmail().withMessage("Invalid email format"),
+        body("otp").isNumeric().withMessage("OTP must be numeric"),
+        body("newPassword")
+            .isLength({ min: 8 })
+            .withMessage("Password must be at least 8 characters long"),
+        body("rewriteNewPassword").custom((value, { req }) => {
             if (value !== req.body.newPassword) {
-                throw new Error('Passwords do not match');
+                throw new Error("Passwords do not match");
             }
             return true;
-        })
+        }),
     ],
     async (req, res) => {
         const { email, otp, newPassword } = req.body;
@@ -76,29 +89,32 @@ route.post(
                     email,
                     OTP_value: otp,
                     is_used: false,
-                    Expiry_timestamp: { [Op.gt]: new Date() } // Check if OTP is not expired
-                }
+                    Expiry_timestamp: { [Op.gt]: new Date() }, // Check if OTP is not expired
+                },
             });
 
             if (!otpRecord) {
-                return res.status(401).json({ error: 'Invalid OTP or OTP expired' });
+                return res.status(401).json({ error: "Invalid OTP or OTP expired" });
             }
+            // Hash the new password
+            const hashedPassword = await bcrypt.hash(newPassword, 10);
 
             // Update user's password
-            await User.update({ password: newPassword }, { where: { email } });
+            await User.update({ password: hashedPassword }, { where: { email } });
 
             // Mark OTP as used
             await otpRecord.update({ is_used: true });
 
-            return res.status(200).json({ message: 'Password updated successfully' });
+            return res.status(200).json({ message: "Password updated successfully" });
         } catch (error) {
-            console.error('Error verifying OTP and updating password:', error);
-            return res.status(500).json({ error: 'Internal server error' });
+            console.error("Error verifying OTP and updating password:", error);
+            return res.status(500).json({ error: "Internal server error" });
         }
     }
 );
 
 module.exports = route;
+
 
 
 

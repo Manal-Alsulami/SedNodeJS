@@ -12,19 +12,22 @@ app.use(express.json());
 const PORT = process.env.PORT || 2429;
 
 // Require API route files
-const signupAPI = require('./APIs/signup').route; // Corrected line
+const signupAPI = require('./APIs/signup').route;
 const loginAPI = require('./APIs/login');
 const forgetpasswordAPI = require('./APIs/forgetpassword');
 const otpsAPI = require('./APIs/otpsAPI');
-const profileAPI = require('./APIs/profile'); // Corrected line
+const profileAPI = require('./APIs/profile');
 const editProfileAPI = require('./APIs/editprofile');
 const changePasswordAPI = require('./APIs/changepassword');
 const plantTypeAPI = require('./APIs/planttypeAPI');
 const selectedPlantTypeAPI = require('./APIs/selectedplanttype');
 const planttypeimageAPI = require('./APIs/planttypeimage'); // Import the planttypeimage router
+
+
+
 // const planttypeimageAPI = require('./APIs/planttypeimage')(sequelize)
 // Use API route files
-app.use('/APIs/signup', signupAPI); // Corrected line
+app.use('/APIs/signup', signupAPI);
 app.use('/APIs/login', loginAPI);
 app.use('/APIs/forgetpassword', forgetpasswordAPI);
 app.use('/APIs/otpsAPI', otpsAPI);

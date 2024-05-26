@@ -1,14 +1,16 @@
 
 
-const express = require('express');
+
+
+const express = require("express");
 const route = express.Router();
-const OTPs = require('../model/otps');
-const User = require('../model/User');
-const sequelize = require('../db/connection');
-const { tempUserData } = require('./signup');
+const OTPs = require("../model/otps");
+const User = require("../model/User");
+const sequelize = require("../db/connection");
+const { tempUserData } = require("./signup");
 
 // Route to handle OTP verification
-route.post('/verify', async (req, res) => {
+route.post("/verify", async (req, res) => {
     const transaction = await sequelize.transaction();
     try {
         const { enteredOTP, email } = req.body;
@@ -18,47 +20,53 @@ route.post('/verify', async (req, res) => {
             where: {
                 email,
                 OTP_value: enteredOTP,
-                is_used: false
+                is_used: false,
             },
-            order: [['OTP_ID', 'DESC']]
+            order: [["OTP_ID", "DESC"]],
         });
 
         if (!otpRecord) {
-            return res.status(401).json({ error: 'Incorrect OTP' });
+            return res.status(401).json({ error: "Incorrect OTP" });
         }
 
         // Check if OTP is expired
         if (otpRecord.Expiry_timestamp < new Date()) {
-            return res.status(401).json({ error: 'OTP has expired' });
+            return res.status(401).json({ error: "OTP has expired" });
         }
 
         // Retrieve user data from in-memory storage
         const userData = tempUserData[email];
         if (!userData) {
-            return res.status(401).json({ error: 'User data not found' });
+            return res.status(401).json({ error: "User data not found" });
         }
 
         // Create a new user with extracted user data
         const newUser = await User.create(userData, { transaction });
 
         // Update the OTP record with user_ID
-        await otpRecord.update({ is_used: true, user_ID: newUser.user_ID }, { transaction });
+        await otpRecord.update(
+            { is_used: true, user_ID: newUser.user_ID },
+            { transaction }
+        );
 
         await transaction.commit();
 
         // Clear temporary user data
-        delete tempUserData[email];
+        // delete tempUserData[email];
 
         // User is verified, return success
-        return res.status(200).json({ message: 'OTP verified successfully', userData: newUser });
+        return res
+            .status(200)
+            .json({ message: "OTP verified successfully", userData: newUser });
     } catch (error) {
         await transaction.rollback();
-        console.error('Error verifying OTP:', error);
-        return res.status(500).json({ error: 'Error verifying OTP' });
+        console.error("Error verifying OTP:", error);
+        return res.status(500).json({ error: "Error verifying OTP" });
     }
 });
 
 module.exports = route;
+
 
 
 
